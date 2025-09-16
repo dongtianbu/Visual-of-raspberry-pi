@@ -7,22 +7,12 @@ import time
 
 #01 F6 01 05 DC 0A 00 6B
 #unhexlify 将十六进制字符串转换为二进制数据
-hex_bytes = binascii.unhexlify("01F601000F01006B")
+#hex_bytes = binascii.unhexlify("01F601000F01006B")
 
-ser = serial.Serial("/dev/ttyAMA0",115200)
+ser = serial.Serial("/dev/ttyAMA0", 115200, timeout=1)
 #mini-uart
 #ser = serial.Serial("/dev/ttyS0",115200)
 
-print("serial test start ...")
-ser.write(hex_bytes)
-time.sleep(1)
-rec_buffer = [None] * 4 
-
-#rec_buffer[i] = ser.read(4)
-
-
-print(rec_buffer)
-print("serial send complete!")
 
 
 def move_forward(RPM, acc):
@@ -33,12 +23,12 @@ def move_forward(RPM, acc):
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
-    
 
-    
     motor = [None] * 4
-    
-    #initialize
+    motor_hex_temp = None
+    motor_hex = []
+
+    #命令字符串拼接
     for i in range(0, 4):
         if i == 0 or i == 2:
             motor[i] = "0" + str(i + 1) + "F6" + "00" + \
@@ -49,15 +39,18 @@ def move_forward(RPM, acc):
 
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex_temp = binascii.unhexlify(motor[j])
+        motor_hex.append(motor_hex_temp)
     
-    #send command
+    #依次发送每个电机的完整命令
     for k in range(0, 4):
-        ser.write(motor_hex[k])
+        ser.write(motor_hex[k]) 
+        time.sleep(0.001)  # 适当延时，确保数据发送完成
+
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
+    print(binascii.hexlify(ser.read(8)))
     print("前进中...")
-    
 
 def move_backwards(RPM, acc):
     #direction:1-ccw-01 2-cw-00 3-ccw-01 4-cw-00
@@ -68,9 +61,8 @@ def move_backwards(RPM, acc):
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
     
-
-    
     motor = [None] * 4
+    motor_hex = [None] * 4
     
     #命令字符串拼接
     for i in range(0, 4):
@@ -83,11 +75,13 @@ def move_backwards(RPM, acc):
 
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex[j] = binascii.unhexlify(motor[j])
     
     #send command
     for k in range(0, 4):
         ser.write(motor_hex[k])
+        time.sleep(0.001)
+
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
     print("后退中...")
@@ -102,10 +96,9 @@ def turn_left_speed(RPM, acc):
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
     
-    motor_1 = "01F600" + RPM_str + acc_str + "016B"
-    
     motor = [None] * 4
-    
+    motor_hex = [None] * 4
+
     #命令字符串拼接
     for i in range(0, 4):
         motor[i] = "0" + str(i + 1) + "F6" + "01" + \
@@ -113,11 +106,12 @@ def turn_left_speed(RPM, acc):
   
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex[j] = binascii.unhexlify(motor[j])
     
-    #send command
+    #fa
     for k in range(0, 4):
         ser.write(motor_hex[k])
+
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
     print("左转中...")
@@ -134,6 +128,7 @@ def turn_right_speed(RPM, acc):
 
     
     motor = [None] * 4
+    motor_hex = [None] * 4
     
     #命令字符串拼接
     for i in range(0, 4):
@@ -142,7 +137,7 @@ def turn_right_speed(RPM, acc):
   
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex[j] = binascii.unhexlify(motor[j])
     
     #send command
     for k in range(0, 4):
@@ -160,9 +155,8 @@ def move_left(RPM, acc):
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
     
-
-    
     motor = [None] * 4
+    motor_hex = [None] * 4
     
     #命令字符串拼接
     for i in range(0, 4):
@@ -175,7 +169,7 @@ def move_left(RPM, acc):
 
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex[j] = binascii.unhexlify(motor[j])
     
     #send command
     for k in range(0, 4):
@@ -196,7 +190,8 @@ def move_right(RPM, acc):
     acc_str = "{:02X}".format(acc)
     
     motor = [None] * 4
-    
+    motor_hex = [None] * 4
+
     #命令字符串拼接
     for i in range(0, 4):
         if i == 2 or i == 3:
@@ -208,7 +203,7 @@ def move_right(RPM, acc):
 
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex[j] = binascii.unhexlify(motor[j])
     
     #send command
     for k in range(0, 4):
@@ -238,7 +233,8 @@ def turn_left_position(RPM, acc):
     motor_1 = "01FD01" + RPM_str + acc_str + pulse_str + "017D6B"
     
     motor = [None] * 4
-    
+    motor_hex = [None] * 4
+
     #命令字符串拼接
     for i in range(0, 4):
         motor[i] = "0" + str(i + 1) + "FD" + "01" + RPM_str + \
@@ -247,7 +243,7 @@ def turn_left_position(RPM, acc):
 
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex[j] = binascii.unhexlify(motor[j])
     
     #send command
     for k in range(0, 4):
@@ -273,6 +269,7 @@ def turn_right_position(RPM, acc):
     motor_1 = "01FD01" + RPM_str + acc_str + pulse_str + "017D6B"
     
     motor = [None] * 4
+    motor_hex = [None] * 4
     
     #命令字符串拼接
     for i in range(0, 4):
@@ -282,7 +279,7 @@ def turn_right_position(RPM, acc):
 
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
-        motor_hex = binascii.unhexlify(motor(j))
+        motor_hex[j] = binascii.unhexlify(motor[j])
     
     #send command
     for k in range(0, 4):
@@ -295,6 +292,6 @@ def turn_right_position(RPM, acc):
 #停止所有电机
 def motor_stop():
     #停止命令
-    stop_hex = binascii.unhexlify("01FE98006B")
+    stop_hex = binascii.unhexlify("00FE98006B")
     ser.write(stop_hex)
     print("所有电机已停止！")
