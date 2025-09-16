@@ -1,3 +1,8 @@
+import serial
+import binascii
+import time
+from car_control import ser
+
 #位置模式命令
 #地址 + 0xFD + 方向 + 速度+ 加速度 + 脉冲数 + 相对/绝对模式标志(00表示相对位置模式，01绝对位置模式) + 多机同步标志 + 校验字节
 #01 FD 01 05 DC 00 00 00 7D 00 00 00 6B
@@ -5,7 +10,7 @@ def lifting_up(RPM, acc, distance):
     #direction:5-ccw-01
     
     #待调试参数pulse，通过调试pulse的取值，得出具体的上升距离和pulse的关系
-    pulse = 100000
+    pulse = int(3200 * distance)
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
@@ -17,17 +22,17 @@ def lifting_up(RPM, acc, distance):
     #把十六进制字符串转换为二进制数据
     motor_5_hex = binascii.unhexlify(motor_5)
     
-    #send command
+    #发送开始运动命令
     ser.write(motor_5_hex)
+    time.sleep(0.01)
         
-    #发送多机同步命令，所有电机同时动作
     print("升降平台上升中...")
 
 def lifting_down(RPM, acc, distance):
     #direction:5-cw-00
     
     #待调试参数pulse，通过调试pulse的取值，得出具体的上升距离和pulse的关系
-    pulse = 100000
+    pulse = int(3200 * distance)
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
@@ -39,10 +44,10 @@ def lifting_down(RPM, acc, distance):
     #把十六进制字符串转换为二进制数据
     motor_5_hex = binascii.unhexlify(motor_5)
     
-    #send command
+    #发送开始运动命令
     ser.write(motor_5_hex)
+    time.sleep(0.01)
         
-    #发送多机同步命令，所有电机同时动作
     print("升降平台下降中...")
 
 
@@ -51,7 +56,7 @@ def claw_forward(RPM, acc, distance):
     #direction:6-cw-00
     
     #待调试参数pulse，通过调试pulse的取值，得出具体的上升距离和pulse的关系
-    pulse = 100000
+    pulse = int(3200 * distance)
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
@@ -63,18 +68,19 @@ def claw_forward(RPM, acc, distance):
     #把十六进制字符串转换为二进制数据
     motor_6_hex = binascii.unhexlify(motor_6)
     
-    #send command
+    #发送开始运动命令
     ser.write(motor_6_hex)
+    time.sleep(0.01)
         
     #发送多机同步命令，所有电机同时动作
     print("爪子前伸中...")
 
 
-def claw_backwards(RPM, acc, distance):
+def claw_backward(RPM, acc, distance):
     #direction:6-ccw-01
     
     #待调试参数pulse，通过调试pulse的取值，得出具体的上升距离和pulse的关系
-    pulse = 100000
+    pulse = int(3200 * distance)
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
@@ -86,8 +92,9 @@ def claw_backwards(RPM, acc, distance):
     #把十六进制字符串转换为二进制数据
     motor_6_hex = binascii.unhexlify(motor_6)
     
-    #send command
+    #发送开始运动命令
     ser.write(motor_6_hex)
+    time.sleep(0.01)
         
     #发送多机同步命令，所有电机同时动作
     print("爪子前伸中...")

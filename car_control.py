@@ -45,7 +45,7 @@ def move_forward(RPM, acc):
     #依次发送每个电机的完整命令
     for k in range(0, 4):
         ser.write(motor_hex[k]) 
-        time.sleep(0.001)  # 适当延时，确保数据发送完成
+        time.sleep(0.01)  # 适当延时，确保数据发送完成
 
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
@@ -77,10 +77,10 @@ def move_backwards(RPM, acc):
     for j in range(0, 4):
         motor_hex[j] = binascii.unhexlify(motor[j])
     
-    #send command
+    #发送命令
     for k in range(0, 4):
         ser.write(motor_hex[k])
-        time.sleep(0.001)
+        time.sleep(0.01)
 
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
@@ -108,9 +108,10 @@ def turn_left_speed(RPM, acc):
     for j in range(0, 4):
         motor_hex[j] = binascii.unhexlify(motor[j])
     
-    #fa
+    #发送命令
     for k in range(0, 4):
         ser.write(motor_hex[k])
+        time.sleep(0.01)
 
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
@@ -124,9 +125,7 @@ def turn_right_speed(RPM, acc):
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
-    
 
-    
     motor = [None] * 4
     motor_hex = [None] * 4
     
@@ -139,9 +138,11 @@ def turn_right_speed(RPM, acc):
     for j in range(0, 4):
         motor_hex[j] = binascii.unhexlify(motor[j])
     
-    #send command
+    #发送命令
     for k in range(0, 4):
         ser.write(motor_hex[k])
+        time.sleep(0.01)
+
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
     print("右转中...")
@@ -170,10 +171,11 @@ def move_left(RPM, acc):
     #把十六进制字符串转换为二进制数据
     for j in range(0, 4):
         motor_hex[j] = binascii.unhexlify(motor[j])
-    
-    #send command
+        
+    #发送命令
     for k in range(0, 4):
         ser.write(motor_hex[k])
+        time.sleep(0.01)
 
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
@@ -205,9 +207,10 @@ def move_right(RPM, acc):
     for j in range(0, 4):
         motor_hex[j] = binascii.unhexlify(motor[j])
     
-    #send command
+    #发送命令
     for k in range(0, 4):
         ser.write(motor_hex[k])
+        time.sleep(0.01)
         
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
@@ -224,13 +227,11 @@ def turn_left_position(RPM, acc):
     pulse = 100000
 
     #字节化多机同步命令
-    mul_syn_hex = binascii.unhexlify("00FFFD6B")
+    mul_syn_hex = binascii.unhexlify("00FF666B")
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
     pulse_str = "{:08X}".format(pulse)
-    
-    motor_1 = "01FD01" + RPM_str + acc_str + pulse_str + "017D6B"
     
     motor = [None] * 4
     motor_hex = [None] * 4
@@ -245,9 +246,10 @@ def turn_left_position(RPM, acc):
     for j in range(0, 4):
         motor_hex[j] = binascii.unhexlify(motor[j])
     
-    #send command
+    #发送命令
     for k in range(0, 4):
         ser.write(motor_hex[k])
+        time.sleep(0.01)
         
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
@@ -260,7 +262,7 @@ def turn_right_position(RPM, acc):
     pulse = 100000
 
     #字节化多机同步命令
-    mul_syn_hex = binascii.unhexlify("00FFFD6B")
+    mul_syn_hex = binascii.unhexlify("00FF666B")
 
     RPM_str = "{:04X}".format(RPM)
     acc_str = "{:02X}".format(acc)
@@ -281,9 +283,10 @@ def turn_right_position(RPM, acc):
     for j in range(0, 4):
         motor_hex[j] = binascii.unhexlify(motor[j])
     
-    #send command
+    #发送命令
     for k in range(0, 4):
         ser.write(motor_hex[k])
+        time.sleep(0.01)
         
     #发送多机同步命令，所有电机同时动作
     ser.write(mul_syn_hex)
